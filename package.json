@@ -12,6 +12,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@types/express": "^5.0.6",
+    "@types/multer": "^2.1.0",
     "@types/node": "^25.5.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^6.0.2"
@@ -19,6 +20,7 @@
   "dependencies": {
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "multer": "^2.1.1",
     "openai": "^6.33.0"
   }
 }
