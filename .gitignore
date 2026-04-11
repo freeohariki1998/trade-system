@@ -1,0 +1,51 @@
+# -------------------------
+# Global
+# -------------------------
+node_modules/
+dist/
+build/
+.env
+.env.*
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+
+# -------------------------
+# TypeScript
+# -------------------------
+*.tsbuildinfo
+
+# -------------------------
+# Next.js (trade-ui)
+# -------------------------
+.next/
+out/
+.vercel/
+
+# Next.js cache
+.next/cache/
+.next/static/
+
+# -------------------------
+# Express / API (ai-api)
+# -------------------------
+ai-api/tmp/
+ai-api/logs/
+ai-api/uploads/
+
+# -------------------------
+# OS / Editor
+# -------------------------
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# -------------------------
+# Docker
+# -------------------------
+docker-data/
