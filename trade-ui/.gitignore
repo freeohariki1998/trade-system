@@ -1,0 +1,42 @@
+# --- Node ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Next.js ---
+.next/
+.out/
+.vercel/
+.turbo/
+.cache/
+
+# --- Env ---
+.env
+.env.local
+.env.*.local
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Coverage ---
+coverage/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Editor ---
+.vscode/
+.idea/
+*.swp
+
+# --- TypeScript ---
+*.tsbuildinfo
+next-env.d.ts
+
+# --- Misc ---
+.eslintcache
+.stylelintcache
