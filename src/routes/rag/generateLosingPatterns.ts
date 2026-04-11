@@ -1,20 +1,19 @@
 import { Router } from "express";
-import { getTradeCollection } from "../../services/rag/chromaClient";
 import { getLosingPatternCollection } from "../../services/rag/losingPatternCollection";
 import { client } from "../../lib/openai";
 
 const router = Router();
 
 router.post("/", async (req, res) => {
-    const tradeCollection = await getTradeCollection();
+    const tradeCollection = await getLosingPatternCollection();
 
-    // ★ 過去の負けトレードを検索
+    // 過去の負けトレードを検索
     const result = await tradeCollection.query({
         queryTexts: ["負けトレードの特徴"],
         nResults: 50,
     });
 
-    // ★ LLM に負けパターン抽出を依頼
+    // LLM に負けパターン抽出を依頼
     const answer = await client.responses.create({
         model: "gpt-4.1-mini",
         input: `
@@ -35,10 +34,8 @@ router.post("/", async (req, res) => {
 
     const pattern = answer.output_text;
 
-    // ★ パターン辞書に保存
-    const patternCollection = await getLosingPatternCollection();
-
-    await patternCollection.upsert({
+    // パターン辞書に保存
+    await tradeCollection.upsert({
         ids: [`losing_${Date.now()}`],
         documents: [pattern],
     });

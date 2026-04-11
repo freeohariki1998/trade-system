@@ -1,12 +1,11 @@
 import { Router } from "express";
-import { getTradeCollection } from "../../services/rag/chromaClient";
 import { getWinningPatternCollection } from "../../services/rag/winningPatternCollection";
 import { client } from "../../lib/openai";
 
 const router = Router();
 
 router.post("/", async (req, res) => {
-    const tradeCollection = await getTradeCollection();
+    const tradeCollection = await getWinningPatternCollection();
 
     // 過去の勝ちトレードを検索
     const result = await tradeCollection.query({
@@ -36,9 +35,7 @@ router.post("/", async (req, res) => {
     const pattern = answer.output_text;
 
     // パターン辞書に保存
-    const patternCollection = await getWinningPatternCollection();
-
-    await patternCollection.upsert({
+    await tradeCollection.upsert({
         ids: [`pattern_${Date.now()}`],
         documents: [pattern],
     });
