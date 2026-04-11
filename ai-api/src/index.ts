@@ -8,8 +8,10 @@ import ragUpsert from "./routes/rag/upsert";
 import ragSearch from "./routes/rag/search";
 import generateWinningPatterns from "./routes/rag/generateWinningPatterns";
 import generateLosingPatterns from "./routes/rag/generateLosingPatterns";
+import cors from "cors";
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use("/api/chat", chatRouter);
 app.use("/api/summarize-pdf", summarizePdfRouter);
@@ -20,6 +22,6 @@ app.use("/api/rag/search", ragSearch);
 app.use("/api/rag/generate-winning-patterns", generateWinningPatterns);
 app.use("/api/rag/generate-losing-patterns", generateLosingPatterns);
 
-app.listen(3000, () => {
-  console.log("Server is running on http://localhost:3000");
+app.listen(3001, () => {
+  console.log("Server is running on http://localhost:3001");
 });

@@ -1,0 +1,8 @@
+{
+    "name": "trade-system",
+    "private": true,
+    "workspaces": [
+        "ai-api",
+        "trade-ui"
+    ]
+}
