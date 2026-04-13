@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { generateWinningPatterns, generateLosingPatterns } from "@/src/lib/apiClient";
-import PatternCard, { Pattern } from "./PatternCard";
+import PatternCard, { Pattern } from "../../components/PatternCard";
 export default function generatePatterns() {
     const [loading, setLoading] = useState(false);
     const [winning, setWinning] = useState<Pattern | null>(null);
