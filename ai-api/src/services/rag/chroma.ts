@@ -28,3 +28,14 @@ export async function getCollection(name: string) {
         embeddingFunction: openAiEmbedding,
     });
 }
+
+
+export async function resetCollection(name: string) {
+    const collections = await chroma.listCollections();
+    const exists = collections.some(c => c.name === name);
+
+    if (exists) {
+        await chroma.deleteCollection({ name });
+    }
+    return await getCollection(name);
+}

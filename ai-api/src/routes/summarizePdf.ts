@@ -4,6 +4,7 @@ import fs from "fs";
 import multer from "multer"
 import { PDFParse } from "pdf-parse";
 import { ChromaClient } from "chromadb";
+import { resetCollection } from "../services/rag/chroma";
 
 const router = Router();
 const upload = multer({ dest: "uploads/" }); // 一時保存先
@@ -16,15 +17,15 @@ const chroma = new ChromaClient({
     host: "localhost",
     port: 8000,
     ssl: false,
-  });
-  
+});
+
 
 // 参考サイト:https://developers.openai.com/api/docs/guides/text
 // PDF をアップロードして Chroma に埋め込みを保存する API
 router.post("/", upload.single("file"), async (req, res) => {
     try {
         // ファイルをチェック
-        const file =  req.file?.path;
+        const file = req.file?.path;
         if (!file) return res.status(400).json({ error: "アップロードするファイルがない" });
 
         // PDF → テキスト抽出
@@ -34,37 +35,39 @@ router.post("/", upload.single("file"), async (req, res) => {
         await parser.destroy();
         const text = pdfData.text;
 
+
         // テキストをチャンクに分解
         const chunks = chunkText(text);
 
+
         // コレクションを取得 or 作成
-        const collection = await chroma.getOrCreateCollection({
-            name: "pdf_chunks",
-        })
+        const collection = await resetCollection("pdf_chunks");
+
 
         // 各チャンクをembedding化してChromaに保存
-        for (let i = 0; i < chunks.length; i++){
+
+        for (let i = 0; i < chunks.length; i++) {
             const chunk = chunks[i];
-            if (!chunk) continue;
-            // テキスト → ベクトル
+
+            // 空白だけの chunk を除外
+            if (!chunk || !chunk.trim()) continue;
             const embedding = await client.embeddings.create({
                 model: "text-embedding-3-small",
                 input: chunk,
             });
 
-            // 念のためundefinedチェック
             const vector = embedding.data?.[0]?.embedding;
             if (!vector) continue;
-            
-            // Chromaに保存
+
             await collection.add({
-                ids:[`chunk_${i}`],
+                ids: [`chunk_${i}`],
                 embeddings: [vector],
-                documents:[chunk],
+                documents: [chunk],
             });
         }
+
         res.json({ message: "PDF の embedding 保存完了" });
-        
+
         // 分解したテキストを要約して格納
         // const summaries = [];
 
@@ -98,7 +101,7 @@ router.post("/", upload.single("file"), async (req, res) => {
 // テキストを指定のサイズに分解する
 const chunkText = (text: string, size = 1000) => {
     const chunks = [];
-    for (let i = 0; i < text.length; i += size){
+    for (let i = 0; i < text.length; i += size) {
         chunks.push(text.slice(i, i + size));
     }
     return chunks;
