@@ -2,6 +2,7 @@ import { Router } from "express";
 import { client } from "../lib/openai";
 import multer from "multer"
 import { ChromaClient } from "chromadb";
+import { getCollection } from "../services/rag/chroma";
 
 const router = Router();
 
@@ -9,7 +10,7 @@ const chroma = new ChromaClient({
     host: "localhost",
     port: 8000,
     ssl: false
-  });
+});
 
 router.post("/", async (req, res) => {
     // リクエストに質問が含まれているかチェック
@@ -18,8 +19,8 @@ router.post("/", async (req, res) => {
         return res.status(400).json({ error: "question が必要です" });
     }
     // PDFアップロード時に作成したコレクションを取得
-    const collection = await chroma.getOrCreateCollection({name: "pdf_chunks"});
-    
+    const collection = await chroma.getCollection({ name: "pdf_chunks" });
+
     // 質問文をベクトルに変換
     const queryEmbedding = await client.embeddings.create({
         model: "text-embedding-3-small",
@@ -28,14 +29,13 @@ router.post("/", async (req, res) => {
     // 念のためundefinedチェック
     const vector = queryEmbedding.data?.[0]?.embedding;
     if (!vector) return;
-    
+
     // Chromaに保存されているPDFのチャンクから
     // 質問embeddingに最も近いものを検索
     const results = await collection.query({
         queryEmbeddings: [vector],
         nResults: 3,
     });
-
     // 検索結果を使ってLLMに回答させる
     const answer = await client.responses.create({
         model: "gpt-4.1-mini",
@@ -48,9 +48,10 @@ router.post("/", async (req, res) => {
     【質問】
     ${question}
     `,
-      });
-    
-      res.json({ answer: answer.output_text });
+    });
+
+
+    res.json({ answer: answer.output_text });
 })
 
 export default router;
