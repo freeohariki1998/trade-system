@@ -11,6 +11,13 @@ export async function ask(question: string) {
 export async function uploadPdf(file: File) {
     return postFile("/api/summarize-pdf", file)
 }
+export async function generateWinningPatterns() {
+    return post("/api/rag/generate-winning-patterns", {});
+}
+
+export async function generateLosingPatterns() {
+    return post("/api/rag/generate-losing-patterns", {});
+}
 
 
 async function post(path: string, body: any) {
