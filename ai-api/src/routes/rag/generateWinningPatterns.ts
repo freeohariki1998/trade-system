@@ -19,28 +19,42 @@ router.post("/", async (req, res) => {
         input: `
             以下は過去の勝ちトレードです。
             共通点を分析し、勝ちパターンを抽出してください。
-
+            
             【勝ちトレード】
             ${JSON.stringify(result.documents)}
-
-            以下を出力してください：
-            1. 勝ちパターンの名前
-            2. パターンの説明
-            3. そのパターンの条件（数値ベース）
-            4. そのパターンが勝ちやすい理由
-            5. そのパターンの注意点
-                `
+            
+            以下の JSON 形式で返してください：
+            conditions は必ず string の配列で返してください。
+            オブジェクトではなく、説明文の文字列にしてください。
+            
+            {
+                "name": "",
+                "description": "",
+                "conditions": [],
+                "reason": "",
+                "notes": ""
+            }
+        `
     });
 
-    const pattern = answer.output_text;
+    // LLMの出力を取得
+    let raw = answer.output_text;
 
-    // パターン辞書に保存
+    // コードブロックを除去
+    raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+
+    // JSONにパース
+    const pattern = JSON.parse(raw);
+
+    // Chromaに保存
     await tradeCollection.upsert({
         ids: [`pattern_${Date.now()}`],
-        documents: [pattern],
+        documents: [JSON.stringify(pattern)],
     });
 
+    // UIに返す（object のまま返す）
     res.json({ message: "勝ちパターン辞書を更新しました", pattern });
+
 });
 
 export default router;

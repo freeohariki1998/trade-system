@@ -17,30 +17,45 @@ router.post("/", async (req, res) => {
     const answer = await client.responses.create({
         model: "gpt-4.1-mini",
         input: `
-    以下は過去の負けトレードです。
-    共通点を分析し、負けパターンを抽出してください。
+            以下は過去の負けトレードです。
+            共通点を分析し、負けパターンを抽出してください。
 
-    【負けトレード】
-    ${JSON.stringify(result.documents)}
+            【負けトレード】
+            ${JSON.stringify(result.documents)}
 
-    以下を出力してください：
-    1. 負けパターンの名前
-    2. パターンの説明
-    3. そのパターンの条件（数値ベース）
-    4. なぜ負けやすいのか（論理的に）
-    5. このパターンを避けるための対策
+            以下の JSON 形式で返してください：
+            conditions は必ず string の配列で返してください。
+            オブジェクトではなく、説明文の文字列にしてください。
+
+            {
+                "name": "",
+                "description": "",
+                "conditions": [],
+                "reason": "",
+                "notes": ""
+            }
         `
     });
 
-    const pattern = answer.output_text;
+    // LLMの出力を取得
+    let raw = answer.output_text;
 
-    // パターン辞書に保存
+    // コードブロックを除去
+    raw = raw.replace(/```json/g, "").replace(/```/g, "").trim();
+
+    // JSONにパース
+    const pattern = JSON.parse(raw);
+
+    // Chromaに保存
     await tradeCollection.upsert({
         ids: [`losing_${Date.now()}`],
-        documents: [pattern],
+        documents: [JSON.stringify(pattern)],
     });
 
+    // UIに返す（object のまま返す）
     res.json({ message: "負けパターン辞書を更新しました", pattern });
+
+
 });
 
 export default router;
