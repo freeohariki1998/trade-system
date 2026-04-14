@@ -17,26 +17,39 @@ type SimilarItem = {
 };
 router.post("/", async (req, res) => {
   const rawTrades = await getPairedTrades(); // ★ DB から ENTRY/SELL をペアリング
+  if (!rawTrades || rawTrades.length === 0) {
+    return res.json({
+      message: "今日はトレードログがありませんでした。",
+      summary: null,
+      patterns: null,
+      similar: [],
+      analysis: "今日はエントリーがなかったため、分析対象がありません。",
+    });
+  }
 
   const trades = await Promise.all(rawTrades.map(t => buildTradeData(t)));
-  console.log("trades after build:", trades);
 
   const winningTrades = trades.filter(t => isWinningTrade(t));
   const losingTrades = trades.filter(t => !isWinningTrade(t));
 
   // ★ 勝ちトレードを Chroma に保存
   const tradeCollection = await getTradeCollection();
-  await tradeCollection.upsert({
-    ids: winningTrades.map(t => `win_${t.code}_${t.entry_price}_${t.exit_price}`),
-    documents: winningTrades.map(t => toEmbeddingQuery(t)),
-  });
+  if (winningTrades.length > 0) {
+    await tradeCollection.upsert({
+      ids: winningTrades.map(t => `win_${t.code}_${t.entry_price}_${t.exit_price}`),
+      documents: winningTrades.map(t => toEmbeddingQuery(t)),
+    });
+  }
+
 
   // ★ 負けトレードを負けパターン辞書に保存
   const losingPatternCollection = await getLosingPatternCollection();
-  await losingPatternCollection.upsert({
-    ids: losingTrades.map(t => `lose_${t.code}_${t.entry_time}`),
-    documents: losingTrades.map(t => toEmbeddingQuery(t)),
-  });
+  if (losingTrades.length > 0) {
+    await losingPatternCollection.upsert({
+      ids: losingTrades.map(t => `lose_${t.code}_${t.entry_time}`),
+      documents: losingTrades.map(t => toEmbeddingQuery(t)),
+    });
+  }
 
   // 過去の類似トレード検索
   const collection = await getTradeCollection();
