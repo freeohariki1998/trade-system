@@ -9,7 +9,6 @@ export default function AskPage() {
 
     async function handleSend() {
         const res = await ask(input);
-        console.log("query results:", res);
 
         setReply(res);
     }
