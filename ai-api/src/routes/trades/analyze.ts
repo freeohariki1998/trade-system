@@ -78,7 +78,7 @@ router.post("/", async (req, res) => {
 
     similarAll.push({
       trade,
-      similar: filtered.map(f => f.doc),
+      similar: filtered.map(f => JSON.parse(f.doc)),
       distances: filtered.map(f => f.distance),
     });
   }
