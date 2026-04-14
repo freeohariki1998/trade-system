@@ -18,6 +18,9 @@ export async function generateWinningPatterns() {
 export async function generateLosingPatterns() {
     return post("/api/rag/generate-losing-patterns", {});
 }
+export async function analyzeTrades() {
+    return post("/api/analyze", {});
+}
 
 
 async function post(path: string, body: any) {
