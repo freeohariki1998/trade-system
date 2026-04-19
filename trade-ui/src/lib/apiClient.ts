@@ -21,7 +21,9 @@ export async function generateLosingPatterns() {
 export async function analyzeTrades() {
     return post("/api/analyze", {});
 }
-
+export async function fetchTrades() {
+    return get("/api/list");
+}
 
 async function post(path: string, body: any) {
     const res = await fetch(`${BASE_URL}${path}`, {
@@ -32,6 +34,17 @@ async function post(path: string, body: any) {
 
     if (!res.ok) {
         throw new Error(`API Error: ${res.status}`)
+    }
+    return res.json();
+}
+
+async function get(path: string) {
+    const res = await fetch(`${BASE_URL}${path}`, {
+        method: "GET",
+    });
+
+    if (!res.ok) {
+        throw new Error(`API Error: ${res.status}`);
     }
     return res.json();
 }
