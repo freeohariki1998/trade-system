@@ -6,6 +6,7 @@ export async function getCandlesOld(): Promise<OldLog[]> {
     `
     SELECT *
     FROM trade_logs_old
+    WHERE is_sim = '0'
     ORDER BY id
   `
   );
