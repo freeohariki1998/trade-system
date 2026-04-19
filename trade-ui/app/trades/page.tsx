@@ -47,11 +47,22 @@ export default function TradeListPage() {
         return acc;
     }, {});
 
+    const totalProfit = validTrades.reduce((sum, t) => {
+        return sum + (t.exit_price - t.entry_price) * t.qty;
+    }, 0);
+
 
 
     return (
         <div className="p-4 space-y-6">
             <h1 className="text-2xl font-bold">トレード一覧</h1>
+            <div className="text-3xl font-bold">
+                合計損益:
+                <span className={totalProfit > 0 ? "text-green-400" : "text-red-400"}>
+                    {Math.round(totalProfit).toLocaleString()} 円
+                </span>
+            </div>
+
 
             {Object.entries(grouped).map(([date, list]) => {
                 list.sort((a, b) => new Date(a.entry_time).getTime() - new Date(b.entry_time).getTime());
