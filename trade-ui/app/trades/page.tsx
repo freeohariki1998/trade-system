@@ -39,9 +39,8 @@ export default function TradeListPage() {
     });
 
 
-    // ② 日付ごとにグループ化
     const grouped = validTrades.reduce<Record<string, Trade[]>>((acc, t) => {
-        const date = t.entry_time.slice(0, 10); // ← これに変更
+        const date = t.entry_time.slice(0, 10);
         acc[date] = acc[date] || [];
         acc[date].push(t);
         return acc;
