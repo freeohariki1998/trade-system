@@ -2,8 +2,10 @@ import { RawTrade } from "../../types/rawTrade";
 import { OldLog } from "../../types/oldLog";
 import { getCandlesOld } from "../../db/candles_odl";
 
+
 export async function getPairedTradesOld(): Promise<RawTrade[]> {
     const rows: OldLog[] = await getCandlesOld();
+
 
     const map = new Map<string, OldLog>();
     const paired: RawTrade[] = [];
@@ -18,6 +20,10 @@ export async function getPairedTradesOld(): Promise<RawTrade[]> {
         if (row.action === "SELL") {
             const entry = map.get(key);
             if (!entry) continue;
+
+            if (new Date(row.trade_datetime) < new Date(entry.trade_datetime)) {
+                continue;
+            }
 
             paired.push({
                 id: entry.id,
