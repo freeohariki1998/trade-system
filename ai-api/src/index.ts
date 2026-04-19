@@ -3,11 +3,12 @@ import express from "express";
 import chatRouter from "./routes/chat";
 import summarizePdfRouter from "./routes/summarizePdf";
 import askRouter from "./routes/ask";
-import analyzeRouter from "./routes//trades/analyze";
+import analyzeRouter from "./routes/trades/analyze";
 import ragUpsert from "./routes/rag/upsert";
 import ragSearch from "./routes/rag/search";
 import generateWinningPatterns from "./routes/rag/generateWinningPatterns";
 import generateLosingPatterns from "./routes/rag/generateLosingPatterns";
+import analyzeListRouter from "./routes/trades/list";
 import cors from "cors";
 
 const app = express();
@@ -21,6 +22,7 @@ app.use("/api/rag/upsert", ragUpsert);
 app.use("/api/rag/search", ragSearch);
 app.use("/api/rag/generate-winning-patterns", generateWinningPatterns);
 app.use("/api/rag/generate-losing-patterns", generateLosingPatterns);
+app.use("/api/list", analyzeListRouter);
 
 app.listen(3001, () => {
   console.log("Server is running on http://localhost:3001");

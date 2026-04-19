@@ -1,7 +1,7 @@
 import { db } from "./mysql";
 import { RawTrade } from "../types/rawTrade";
-
-export async function getCandlesOld(): Promise<RawTrade[]> {
+import { OldLog } from "../types/oldLog";
+export async function getCandlesOld(): Promise<OldLog[]> {
   const [rows] = await db.query(
     `
     SELECT code, action, side, price, quantity, trade_datetime, strategy_name, is_sim
@@ -10,5 +10,5 @@ export async function getCandlesOld(): Promise<RawTrade[]> {
   `
   );
 
-  return rows as RawTrade[];
+  return rows as OldLog[];
 }
