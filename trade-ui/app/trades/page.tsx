@@ -50,6 +50,32 @@ export default function TradeListPage() {
         return sum + (t.exit_price - t.entry_price) * t.qty;
     }, 0);
 
+    //　各トレードの損益の計算
+    const profits = validTrades.map(
+        (t) => (Number(t.exit_price) - Number(t.entry_price)) * t.qty
+    );
+    // 勝ちトレード数
+    const wins = profits.filter(p => p > 0).length;
+    // 負けトレード数
+    const losses = profits.filter(p => p < 0).length;
+    // 勝率
+    const winRate = wins + losses > 0
+        ? (wins / (wins + losses)) * 100
+        : 0;
+
+    // 平均利益
+    const avgWin = wins > 0
+        ? profits.filter(p => p > 0).reduce((a, b) => a + b, 0) / wins
+        : 0;
+    // 平均損失
+    const avgLoss = losses > 0
+        ? profits.filter(p => p < 0).reduce((a, b) => a + b, 0) / losses
+        : 0;
+
+    // 勝ちトレードの合計 ÷ 負けトレードの絶対値合計
+    const grossWin = profits.filter(p => p > 0).reduce((a, b) => a + b, 0);
+    const grossLoss = profits.filter(p => p < 0).reduce((a, b) => a + b, 0);
+    const profitFactor = grossLoss !== 0 ? grossWin / Math.abs(grossLoss) : 0;
 
 
     return (
@@ -62,6 +88,42 @@ export default function TradeListPage() {
                 </span>
             </div>
 
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-lg">
+                <div>
+                    勝率:
+                    <span className="font-bold">
+                        {winRate.toFixed(1)}%
+                    </span>
+                </div>
+
+                <div>
+                    平均利益:
+                    <span className="font-bold text-green-400">
+                        {Math.round(avgWin).toLocaleString()} 円
+                    </span>
+                </div>
+
+                <div>
+                    平均損失:
+                    <span className="font-bold text-red-400">
+                        {Math.round(avgLoss).toLocaleString()} 円
+                    </span>
+                </div>
+
+                <div>
+                    トレード数:
+                    <span className="font-bold">
+                        {wins + losses} 回
+                    </span>
+                </div>
+
+                <div>
+                    Profit Factor:
+                    <span className="font-bold">
+                        {profitFactor.toFixed(1)}
+                    </span>
+                </div>
+            </div>
 
             {Object.entries(grouped).map(([date, list]) => {
                 list.sort((a, b) => new Date(a.entry_time).getTime() - new Date(b.entry_time).getTime());
