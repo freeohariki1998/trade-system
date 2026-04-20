@@ -18,6 +18,8 @@ type Trade = {
 export default function TradeListPage() {
     const [trades, setTrades] = useState<Trade[]>([]);
     const [loading, setLoading] = useState(true);
+    const [filterDate, setFilterDate] = useState("");
+    const [filterCode, setFilterCode] = useState("");
 
     useEffect(() => {
         fetchTrades().then((data) => {
@@ -25,8 +27,6 @@ export default function TradeListPage() {
             setLoading(false);
         });
     }, []);
-
-
 
     if (loading) return <div>読み込み中...</div>;
     // nullや0円のデータははじく、
@@ -38,20 +38,27 @@ export default function TradeListPage() {
         return Number.isFinite(profit) && profit !== 0;
     });
 
+    const filteredTrades = validTrades.filter(t => {
+        const date = t.entry_time.slice(0, 10);
+        const mactchDate = filterDate ? date === filterDate : true;
+        const matchCode = filterCode ? t.code.includes(filterCode) : true;
+        return matchCode && mactchDate;
+    })
+
     // 日付ごとにグルーピング
-    const grouped = validTrades.reduce<Record<string, Trade[]>>((acc, t) => {
+    const grouped = filteredTrades.reduce<Record<string, Trade[]>>((acc, t) => {
         const date = t.entry_time.slice(0, 10);
         acc[date] = acc[date] || [];
         acc[date].push(t);
         return acc;
     }, {});
     // トータル収支
-    const totalProfit = validTrades.reduce((sum, t) => {
+    const totalProfit = filteredTrades.reduce((sum, t) => {
         return sum + (t.exit_price - t.entry_price) * t.qty;
     }, 0);
 
     //　各トレードの損益の計算
-    const profits = validTrades.map(
+    const profits = filteredTrades.map(
         (t) => (Number(t.exit_price) - Number(t.entry_price)) * t.qty
     );
     // 勝ちトレード数
@@ -123,6 +130,28 @@ export default function TradeListPage() {
                         {profitFactor.toFixed(1)}
                     </span>
                 </div>
+            </div>
+            <div className="flex gap-4 items-end">
+                <div>
+                    <label className="block text-sm text-gray-400">日付で絞り込み</label>
+                    <input
+                        type="date"
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                        className="px-2 py-1 bg-gray-800 border border-gray-600 rounded"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm text-gray-400">銘柄コードで絞り込み</label>
+                    <input
+                        type="text"
+                        placeholder="例: 1234"
+                        value={filterCode}
+                        onChange={(e) => setFilterCode(e.target.value)}
+                        className="px-2 py-1 bg-gray-800 border border-gray-600 rounded"
+                    />
+                </div>
+
             </div>
 
             {Object.entries(grouped).map(([date, list]) => {
