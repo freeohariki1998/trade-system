@@ -65,10 +65,18 @@ export default function TradeListPage() {
 
             {Object.entries(grouped).map(([date, list]) => {
                 list.sort((a, b) => new Date(a.entry_time).getTime() - new Date(b.entry_time).getTime());
-
+                const totalDailyProfit = list.reduce((sum, t) => {
+                    return sum + (Number(t.exit_price) - Number(t.entry_price)) * t.qty;
+                }, 0);
                 return (
                     <div key={date} className="space-y-2">
-                        <h2 className="text-xl font-semibold">{date}</h2>
+                        <h2 className="text-xl font-semibold flex items-center gap-3">
+                            {date}
+                            <span className={totalDailyProfit > 0 ? "text-green-400" : "text-red-400"}>
+                                {Math.round(totalDailyProfit).toLocaleString()} 円
+                            </span>
+                        </h2>
+
 
                         <div className="divide-y divide-gray-700/50 border border-gray-700/50 rounded">
                             {list.map((t) => {
