@@ -29,7 +29,7 @@ export default function TradeListPage() {
 
 
     if (loading) return <div>読み込み中...</div>;
-
+    // nullや0円のデータははじく、
     const validTrades = trades.filter(t => {
         if (!t.entry_time || t.entry_price == null || t.exit_price == null || t.qty == null) {
             return false;
@@ -38,14 +38,14 @@ export default function TradeListPage() {
         return Number.isFinite(profit) && profit !== 0;
     });
 
-
+    // 日付ごとにグルーピング
     const grouped = validTrades.reduce<Record<string, Trade[]>>((acc, t) => {
         const date = t.entry_time.slice(0, 10);
         acc[date] = acc[date] || [];
         acc[date].push(t);
         return acc;
     }, {});
-
+    // トータル収支
     const totalProfit = validTrades.reduce((sum, t) => {
         return sum + (t.exit_price - t.entry_price) * t.qty;
     }, 0);
